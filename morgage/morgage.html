@@ -1,0 +1,105 @@
+<DOCTYPE html>
+    <!--Daniel Schechtman 1/13/16-->
+    <html>
+        <head>
+            <meta charset="utf-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            
+             <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+            <link rel = "stylesheet" href="style.css" type="text/css">
+        </head>
+        <body>
+            <div class="container">
+                <img id = 'image'/>
+                <div class = 'col-sm-offset-4' id = 'input-field'>
+                <div class = 'row'>
+                    <div class = col-sm-12>
+                        <h3 class = title>Loan life time(in years): </h3>
+                        <form action ="" class = 'title'>
+                            <label>
+                                <input type = 'radio' id = 'amount1' name = 'i' value = '30'>30<p> </p>
+                            </label>
+                            <label>
+                                <input type = 'radio' id = 'amount2' name = 'i' value = '20'>20
+                            </label>
+                            <label>
+                                <input type = 'radio' id = 'amount3' name = 'i' value = '15'>15
+                            </label>
+                        </form>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class = col-sm-12>
+                        <h3 class = title>Monthly interest rate: </h3>
+                        <form class = form-inline>
+                            <div class = form-inline>
+                                <lable class = sr-only for = interest-rate>Interest Rate</lable>
+                                <input type = "text" class="form-control" id="interest-rate" placeholder="Interest rate in percent">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h3 class="title">Prinicple:</h3>
+                        <form class="form-inline">
+                            <div class="form-inline" for = principle></div>
+                            <input type = text class = form-control id = prinicple placeholder="price of the house">
+                        </form>
+                    </div>
+                </div>
+                <h3 class="title">Veiw Month(s) (1-360):</h3>
+                <div class = 'row'>
+                    <div class = 'col-sm-4'>
+                        <form class="form-inline">
+                            <div class = 'form-inline' for = 'lowerRange'></div>
+                            <input type = text style = "width:90px" class = form-control id = lowerRange placeholder="lower limit">
+                        </form>
+                    </div>
+                    <div class="col-sm-4 left-block">
+                        <form class="form-inline">
+                            <div class="form-inline" for = 'upperRange'></div>
+                            <input type="text" style = "width:90px" class="form-control" id = upperRange placeholder="upper limit">
+                        </form>
+                    </div>
+                </div>
+                <div class = row>
+                    <div class = 'col-sm-12'>
+                        <button type = 'submit' id = Sub1 class = 'btn btn-default'>Submit</button>
+                    </div>
+                </div>
+                </div>
+                <div class = row>
+                    <div class = 'col-sm-12' id = summ></div>
+                </div>
+                <div class="row-centered">
+                    <div class = "col-centered-sm-12">
+                        <div class = ''>
+                            <div id = sum-table>
+                                <div id = sb class = ''>
+                                    <table class = "table table-bordered" id = "summery"></table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class = 'row'>
+                    <div class = 'col-sm-12' id = sched></div>
+                </div>
+                <div class = "row" id = 'sched'>
+                    <div id = schd-table>
+                        <div id = scb>
+                            <table class = "table table-bordered" id = schedual></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            
+            <script src ="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+            <script src = morgage.js></script>
+        </body>
+    </html>
+</DOCTYPE>

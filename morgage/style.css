@@ -1,0 +1,28 @@
+.summery-sheet{
+    text-align: center;
+    color: white;
+}
+body{
+   background-image: url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGPqFmMS2dKhFmxXOwy8W7gfhsSfz0bAhcxUwhY14yns-kgJWA);
+    background-size: auto;                      /* <------ */
+    background-repeat:   repeat;
+    background-position: center center;
+}
+.title{
+    color: white;
+}
+#input-field{
+    background-color: grey;
+    display: inline-block;
+    border-radius: 15px;
+}
+.multifields{
+    display: inline-block;
+}
+.table-background{
+    background: black;
+    display: inline-block;
+    border-radius: 15px;
+    width: 100%;
+    margin: auto;
+}
