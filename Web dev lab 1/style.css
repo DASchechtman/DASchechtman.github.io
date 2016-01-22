@@ -1,0 +1,23 @@
+.fit{
+    width:97;
+}
+.container-pos{
+    display: table-cell;
+    margin: auto;
+}
+body{
+    background-image: url(https://media.giphy.com/media/QbbjiNvx0R4Lm/giphy.gif);
+    background-size:auto;
+    background-repeat: repeat;
+    background-position:center;
+}
+.color{
+    border-color: black;
+    background-color:cadetblue;
+}
+.text-color{
+    color: white;
+}
+.special-font{
+    font-family:fantasy;
+}

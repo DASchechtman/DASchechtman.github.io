@@ -3,10 +3,10 @@
     color: white;
 }
 body{
-   background-image: url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGPqFmMS2dKhFmxXOwy8W7gfhsSfz0bAhcxUwhY14yns-kgJWA);
-    background-size: auto;                      /* <------ */
-    background-repeat:   repeat;
-    background-position: center center;
+    background-image: url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGPqFmMS2dKhFmxXOwy8W7gfhsSfz0bAhcxUwhY14yns-kgJWA);
+    background-size:auto;                      /* <------ */
+    background-repeat: repeat;
+    background-position:center;
 }
 .title{
     color: white;

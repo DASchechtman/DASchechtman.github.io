@@ -1,0 +1,91 @@
+<DOCTYPE html>
+    <html>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+            
+        <link rel = "stylesheet" href="bootstrap.min.css" type ="text/css">
+        <link rel = "stylesheet" href="style.css" type="text/css">
+    </html>
+    <body>
+        <div id = 'container' class = 'row'>
+            <div class = 'container-pos col-sm-4 text-color special-font' style>
+                <h1>Input</h1>
+                <table>
+                    <tr>
+                        <td>
+                            <form>
+                                <input type = 'text' class = 'fit' id = 'first-name' placeholder = 'first name'>
+                            </form>
+                        </td>
+                        <td>
+                            <div>&nbsp;</div>
+                        </td>
+                        <td>
+                            <form>
+                                <input type = 'text' class = 'fit' id = 'last-name' placeholder="last name">
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+                <table>
+                    <tr>
+                        <td>
+                            <form>
+                                <input type = 'text' id = 'cell-number' placeholder = 'cell number'>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <form>
+                                <input type = 'text' id = 'address' placeholder = 'address'>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <form>
+                                <button type="button" id = 'sub' class="btn btn-primary">Enter</button>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+                <div class = 'container-pos col-sm-4'>
+                    <h1 class = 'text-color special-font'>Info</h1>
+                    <table>
+                        <thead>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class = 'dropdown special-font'>
+                                        <table class = 'table table-bordered table-hover color'>
+                                            <thead>
+                                                <th><h3>First name</h3></th>
+                                                <th><h3>Last name</h3></th>
+                                                <th><h3>Address</h3></th>
+                                                <th><h3>Cell number</h3></th>
+                                            </thead>
+                                            <tbody id = 'display'>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <form class = 'special-font'>
+                        <button type = 'button' id = 'clear' aria-label="Left Align" class = 'btn btn-danger'>
+                            Clear
+                        </button>
+                    </form>
+                </div>
+            </div>
+        <script src="https://cdn.firebase.com/js/client/2.3.2/firebase.js"></script>
+        <script src = "jquery-1.12.0.min.js"></script>
+        <script src = "bootstrap.min.js"></script>
+        <script src ="Lab1.js"></script>
+    </body>
+</DOCTYPE>
