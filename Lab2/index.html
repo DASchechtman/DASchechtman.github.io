@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+
+<!--Daniel Schechtman-->
+<html>
+    <head>
+        <script type="text/javascript" src="js/phaser.min.js"></script>
+        <style type="text/css">
+            body{
+                margin: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <script type="text/javascript" src="js/jquery-1.12.0.min.js"></script>
+        <script type="text/javascript">
+            
+            // this will allow for sound effects and background noises in the game
+            var fx = {};
+            
+            // will be used for input
+            var space;
+            
+            // this will be used to let the player interact with the game via keyboar arrows
+            var cursor;
+            
+            // this will be used to store all the information on the ground
+            var ground = [];
+            
+            // variable will be used for the player
+            var player;
+            
+            // varible to make landings for when a gap in the ground is too
+            // big to jump over
+            var landing = [];
+            
+            // index for the array landing
+            var index = 0;
+            
+            // this will store all the inforation on the monsters in the game
+            var enemys = [];
+            
+            // this will set the speed in which the monsters move
+            var enemy_speed = 100;
+            
+            // will be used to keep track of and display the score
+            var score = 0;
+            var textScore;
+            
+            // hold all the information on the coins in the game
+            var coins;
+            
+            // will be used to create walls at the front and end of the map so the player can't walk
+            // of the edge
+            var blocks = [];
+            
+            // will determine if the game has been won, lost, or is still going
+            var game_state = 'menu';
+            
+            // this will be used for the background music
+            var music;
+            
+            // will make the background music keep playing
+            var music_loop = 1;
+            
+            // creates the start menu text
+            var start = [];
+            
+            var yes;
+            var no;
+            
+            var restart = false;
+            
+            // this will create the game and call the functions nessesary to do so
+            // it's like the phaser version of int main()
+            var game = new Phaser.Game($(window).width(),
+                                  $(window).height(),
+                                  Phaser.Auto,
+                                  '',
+                                  {preload: preload, create: create, update: update});
+            
+            // this function gets all the assets ready before they can be used in the game
+            function preload(){
+                
+                game.load.image('landing', 'game_assets/brick5.png');
+                game.load.image('landing1', 'game_assets/brick3.png');
+                game.load.image('sky', 'game_assets/platformer_backdrop.png');
+                game.load.image('ground', 'game_assets/platform.png');
+                game.load.image('block', 'game_assets/block4.png');
+                game.load.image('block2', 'game_assets/block1.png');
+                game.load.audio('background_music', 'game_assets/boden.mp3');
+                game.load.audio('coin_sound', 'game_assets/p-ping.mp3');
+                game.load.audio('jump', 'game_assets/mario_jump.mp3');
+                game.load.audio('player_die', 'game_assets/die.wav');
+                game.load.spritesheet('coins', 'game_assets/coin.png', 32, 32)
+                game.load.spritesheet('enemy_dragon', 'game_assets/dragon.png', 96, 64);
+                game.load.spritesheet('char', 'game_assets/dude.png', 32, 48);
+            
+                
+            }
+            
+            // this will append everything to the DOM so it can drawn onto the screen
+            function create(){
+                
+                // playes background music
+                music = game.add.audio('background_music');
+                
+                // will be used to play music when appropreate
+                fx.coin = game.add.audio('coin_sound');
+                fx.jump = game.add.audio('jump');
+                fx.death = game.add.audio('player_die');
+                
+                // initiates the keyboard so the used can use the arrow
+                // keys to control the character
+                cursor = game.input.keyboard.createCursorKeys();
+                
+                // will be used so the user can press space to start the game
+                space = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+                
+                yes = game.input.keyboard.addKey(Phaser.Keyboard.Y);
+                no = game.input.keyboard.addKey(Phaser.Keyboard.N);
+                
+                // allows the game to have some physics
+                game.physics.startSystem(Phaser.Physics.ARCADE);
+                
+                // will determine the size of the world
+                var world_x = 1280*6;
+                var world_y = 570
+                
+                
+                // creates background
+                var sky = game.add.sprite(0, 0, 'sky');
+                
+                // makes the map size bigger
+                game.world.setBounds(0, 0, world_x, world_y)
+                
+                // sets the background to the same size as the map
+                sky.width = world_x;
+                sky.height = 720
+                
+                // creates a group of block objects that will be used to create walls 
+                // at the front and end of the map
+                var block = game.add.group();
+                
+                // makes the blocks act like phyisical objects
+                block.enableBody = true;
+                
+                for(var i = 0; i < 50; i++){
+                    
+                    // the walls are made of two different type of blocks this makes
+                    // sure that the walls are created out of the right blocks in the right
+                    // places
+                    if(i%2===0){
+                        blocks[i] = {block: block.create(0,i*16,'block'), id: 'block'};
+                    }else{
+                        blocks[i] = {block: block.create(world_x-30, (i-1)*16,'block2'), id: 'block1'}; 
+                    }
+                    
+                    // makes it so the character can't move the wall when
+                    // it runs into it
+                    blocks[i].block.body.immovable = true;
+                    
+                }
+                
+                
+                //creates the ground and landings groups
+                
+                var platform = game.add.group();
+                
+                var landing = game.add.group();
+                
+                landing.enableBody = true;
+                
+                platform.enableBody = true;
+                
+                // an array of objects, each object holds information on a patch of ground
+                // (the grounds has gaps in it so it's more challenging) like how far apart they are from 
+                // each other and how thick each patch is
+                ground = [
+                          {
+                            g: platform.create(0, game.world.height - 64, 'ground'), 
+                            x: 0,
+                          },
+                    
+                          {
+                            g: platform.create(700+Math.floor(Math.random()*100), game.world.height - 64, 'ground'), 
+                            x: 700
+                          },
+                    
+                          {
+                            g: platform.create(1400+Math.floor(Math.random()*100), game.world.height-64, 'ground'), 
+                            x:  1400
+                          },
+                    
+                          {
+                            g: platform.create(2800+Math.floor(Math.random()*100), game.world.height-64, 'ground'), 
+                            x: 2800
+                          },
+                          {
+                              g: platform.create(4300+Math.floor(Math.random()*100), game.world.height-64, 'ground'),
+                              x: 4300
+                          },
+                          {
+                              g: platform.create(5000+Math.floor(Math.random()*100), game.world.height-64, 'ground'),
+                              x: 5000,
+                          },
+                          {
+                              g: platform.create(5500+Math.floor(Math.random()*100), game.world.height-64, 'ground'),
+                              x: 5500,
+                          },
+                          {
+                              g: platform.create(6400+Math.floor(Math.random()*100), game.world.height-64, 'ground'),
+                              x:6400,
+                          },
+                          {
+                              g: platform.create(7200+Math.floor(Math.random()*100),game.world.height-64, 'ground'),
+                              x: 7200,
+                          }
+                ];
+                
+                // generates the patches of ground
+                for(var i = 0; i < ground.length; i++){
+                    
+                    // this will set the thickness
+                    var rand = Math.floor(Math.random()*2)+1;
+                    
+                    // if two patches of ground are too far apart this will create a landing
+                    // for the character to jump on.
+                    // just to make so decoration this will also something put a landing
+                    // on a patch of ground or partily over a patch of ground
+                    if( i + 1 < ground.length && ground[i+1].x - ground[i].x > 700){
+                        createLanding(landing ,ground[i].x, ground[i+1].x - ground[i].x, Math.floor(Math.random()*2));
+                    }
+                    // sets the thickness
+                    ground[i].g.scale.setTo(rand,rand);
+                    
+                    // makes sure the ground doesn't fall away when the character jumps on it
+                    ground[i].g.body.immovable = true;
+                    
+                    // makes sure the lase patch will alway touch the end of the map
+                    if(i === ground.length-1){
+                        ground[i].g.width = 750;
+                    }
+                }
+                
+                
+                coins = game.add.group();
+                
+                coins.enableBody = true;
+                
+                for(var i = 1; i < 100; i++){
+                    var coin = coins.create(i * 100, 0, 'coins');
+                    coin.body.gravity.y = 300;
+                    coin.body.bounce.y = .4;
+                }
+                
+                // this will aninmate the coins and make them spin around
+                coins.callAll('animations.add', 'animations', 'rotate', [0,1,2,3,4,5], 10, true);
+                
+                // will make a lot of enemies
+                genEnemyDragon(world_x, world_y);
+                
+                // creates player
+                player = game.add.sprite(30, game.world.height -120, 'char');
+                
+                // makes the obey the laws of game physics
+                game.physics.arcade.enable(player);
+                
+                // makes the character be pulled by gravity and have a little bounce when 
+                // hitting the ground
+                player.body.gravity.y = 300;
+                player.body.bounce.y = .2;
+                
+                // animates the character so when it walks, it actually looks like it's walking
+                player.animations.add('left', [0,1,2,3], 10, true);
+                player.animations.add('right', [5,6,7,8], 10, true);
+                
+                // displays a score over the character and makes sure it follows him
+                textScore = game.add.text(player.x - 100, player.y - 100, 'score: '+score,{fontSize: '32px', fill: '#000'});
+                
+                // displays the start menu text
+                start[0] = game.add.text(game.world.width/2 - 300, game.world.height/2, 'Finals Project', {fontSize: '100px', fill:'#000'});
+                start[1] = game.add.text(game.world.width/2 - 120, game.world.height/2+100, 'press space to play', {fontSize: '25px', fill: '#000'});
+                start[2] = game.add.text(game.world.width/2, game.world.height/2, '', {fontSize: '1px', fill:'#000'});
+                
+                // makes the camera follow the character so the user can travel the whole map
+                game.camera.follow(player);
+                
+            }
+            
+            
+            // will create a landing area if a gap in the ground 
+            // is to big to jump over
+            function createLanding(group, x, dif, type){
+                
+                // I have two different types of landings in this game. One is solid and you can stand of forever
+                // the other will fall under the character's feet if stood on to long
+                // the variables below will be used to determine which type of landing is made
+                var title = 'landing';
+                var solid = true;
+                if(!type){
+                    title = 'landing1';
+                    solid = false;
+                }
+                
+                // note that every landing is initally made so it won't fall, this is becuase when the
+                // coins fall on the unstable landings, they would make it collapse and I wanted it so that type
+                // of platform would only fall when the character falls on it
+                for(var i = 0; i < 20; i++){
+                    landing[index] = {s: group.create((x+dif-dif/2)+(i*30), game.world.height-84, title), sol: solid};
+                    landing[index].s.body.immovable = true;
+                    index++;
+                }
+            }
+            
+            // will create the enemies
+            function genEnemyDragon(x,y){
+                
+                //var rand = Math.floor(Math.random()*5)+10;
+                
+                for(var i = 0; i < 7; i++){
+                    
+                    // this will be used to determine which sprite frames will be shown
+                    // so it looks like the dragon is flying one way or another
+                    var animate_array = []
+                
+                    var direction = Math.floor(Math.random()*2);
+                    if(direction){
+                        animate_array = [0,1,2,3,4,5];
+                        direction = 'right';
+                    }else{
+                        animate_array = [6,7,8,9,10,11]
+                        direction = 'left';
+                    }
+                    enemys[i] =  {
+                        sprite: game.add.sprite(Math.floor(Math.random()*(x-500))+500, Math.floor(Math.random()*(y-75)), 'enemy_dragon'),
+                        dir: direction,
+                        x1: 500,
+                        x2: x - 500,
+                        speed: enemy_speed,
+                    }
+                    
+                    // this will allow the image of the dragon to be flipped so when
+                    // the dragon turns around and heads the other way, it looks like it is flying that
+                    // way
+                    enemys[i].sprite.anchor.setTo(.5, 1);
+                    
+                    // allows for each enemy to be animated
+                    enemys[i].sprite.animations.add('a', animate_array, 10, true);
+                    
+                    // makes the enemy have things like velocity so it can move;
+                    game.physics.arcade.enable(enemys[i].sprite);
+                    
+                }
+            }
+            
+            // updates the score everytime a character touches a coin
+            function updateScore(player, coin){
+                // removes the coin that was touched from the screen
+                coin.kill();
+                
+                // make a ping noise when the player picks up a coin
+                fx.coin.play();
+                
+                score += 5;
+                
+                // will alter what is displayed on the screen to reflect the current score
+                textScore.text = 'score: '+score;
+            }
+            
+            // ends the game
+            function endGame(player, dragon){
+                // removes the character off the screen
+                player.kill();
+                
+                // displays the messege 'Game over'
+                textScore = game.add.text(game.world.centerX - 270 , game.world.centerY, 'Game over', {fontSize: '100px', fill: '#000'});
+                start[3] = game.add.text(game.world.centerX - 190, game.world.centerY+100, 'Do you want to play again? y/n', {fontSize: '25px', fill: '#000'});
+                start[4] = game.add.text(game.world.centerX, game.world.centerY, '', {fontSize: '1px', fill: '#000'});
+                
+                // makes a sound when the player dies
+                fx.death.play();
+                
+                // tells the program to end the screen
+                game_state = 'ended';
+            }
+            
+            function gameWon(){
+                textScore.kill();
+                // displays 'You won"
+                textScore = game.add.text(player.x-800, player.y-300, 'You won', {fontSize: '100px', fill: '#000'});
+                start[3] = game.add.text(player.x - 770, player.y - 100, 'Do you want to play again? y/n', {fontSize: '25px', fill: '#000'});
+                
+                // tells the program to end the game
+                game_state = 'won';
+            }
+            
+            //this function will make sure that nothing falls through the ground and it
+            // will be used to animation alot of things of the screen
+            function update2(){
+                    // checks to see coins or the characher is touching the ground
+                    for(var i = 0; i < ground.length; i++){
+                    game.physics.arcade.collide(player, ground[i].g);
+                    game.physics.arcade.collide(coins, ground[i].g);
+                    
+                }
+        
+                // checks to see if coins or the character are touching a landing
+                for(var i = 0; i < landing.length; i++){
+                    game.physics.arcade.collide(coins, landing[i].s);
+                    
+                    // this will check that the player( and only the player ) has hit the 
+                    // unstable type of landing and let if fall away
+                    if(game.physics.arcade.collide(player, landing[i].s) && !landing[i].sol){
+                        landing[i].s.body.immovable = false;
+                    }
+                    
+                    // removes the pieces from the landing from the program so
+                    // it is not taking up memory
+                    if(landing[i].s.y > 600){
+                        landing[i].s.kill();
+                    }
+                    
+                    // makes sure the pieces of the unstable landing fall into the
+                    // void
+                    if(landing[i].s.y > 490){
+                        landing[i].s.body.gravity.y = 300;
+                    }
+                }
+                
+                // this is actually does all the animationing for the coins, the animating thing you
+                // saw above was just giving thoses objects the ability to be abimated
+                coins.callAll('animations.play', 'animations', 'rotate');
+                
+                
+                for(var i = 0; i < enemys.length; i++){
+                    // actually animates all the enemies
+                    enemys[i].sprite.animations.play('a');
+                    
+                    // moves the dragon in the appropreate direction
+                    if(enemys[i].dir === 'left'){
+                        enemys[i].sprite.body.velocity.x = -enemys[i].speed;
+                    }else{
+                        enemys[i].sprite.body.velocity.x = enemys[i].speed;
+                    }
+                    
+                    // makes the dragon turn around if it gets to close to the
+                    // edge of the screen
+                    if(enemys[i].sprite.x < enemys[i].x1){
+                        // changes the velocity so the dragon moves in dfferent direction
+                        enemys[i].speed = - enemys[i].speed;
+                        
+                        // flips the image over so it looks like it is flying int that direction
+                        enemys[i].sprite.scale.x *= -1;
+                        
+                        // puts the sprite in a location on screen where the if condition
+                        // is not met
+                        enemys[i].sprite.x = enemys[i].x1 + 1;
+                    }else if(enemys[i].sprite.x > enemys[i].x2){
+                    
+                        enemys[i].speed = -enemys[i].speed;
+                        
+                        enemys[i].sprite.scale.x *= -1;
+                        
+                        enemys[i].sprite.x = enemys[i].x2 - 1;
+                    }
+                    // sees if the character has hit a dragon so the character dies, and the game ends
+                    // this will call the function endGame()
+                    game.physics.arcade.overlap(player, enemys[i].sprite, endGame, null, this)
+                    
+                }
+                if(game_state === 'start'){
+                    // if the player touches a coin, it will update the score and make the coin disappear from
+                    // the screen
+                    game.physics.arcade.overlap(player,coins,updateScore,null,this);
+                }
+            }
+            
+        
+            // this what will make everything on the screen animated
+            function update(){
+                
+                // will restart the background music soon after it finishes
+                // the update function runs at 60 fps
+                if(music_loop === 179*60){
+                    music.play();
+                    music_loop = 1;
+                    console.log('working');
+                }
+                music_loop++;
+                
+                if(game_state === 'start'){
+                    
+                            if(restart){
+                                start[0].kill();
+                                start[1].kill();
+                                start[2].kill();
+                                restart = false;
+                            }
+                    
+                            // keeps the score messege displayed over the character's head
+                            textScore.x = player.x;
+                            textScore.y = 16;
+                            
+                            update2();    
+                    
+                             for(var i = 0; i < blocks.length; i++){
+                                game.physics.arcade.collide(player, blocks[i].block);
+                            }
+                    
+                            // checks to see if the player has reached the end of the board
+                            if(player.x >= 1280*6-100){
+                                gameWon();
+                            }
+                            
+                            if(cursor.left.isDown){
+                                // if the left arrow key is down, this will play the character walking left
+                                // animation
+                                player.animations.play('left');
+                                
+                                // and make the character move left
+                                player.body.velocity.x = -150;
+                            }else if(cursor.right.isDown){
+                                
+                                // if the left arrow key is down, this will play the character walking right
+                                // animation
+                                player.animations.play('right');
+                                
+                                // and makes it move right
+                                player.body.velocity.x = 150;
+                            }else{
+                                
+                                // makes the character stop moving
+                                player.body.velocity.x = 0;
+                                
+                                // stand still
+                                player.animations.stop();
+                                
+                                // and face the screen
+                                player.frame = 4;
+                            }
+                            
+                            // if the player falls in a gap in the ground,
+                            // it's game over
+                            if(player.y > 600){
+                                endGame(player);
+                            }
+                            
+                            // allow the character to jump if touching the ground
+                            if(cursor.up.isDown && player.body.touching.down){
+                                player.body.velocity.y = -300;
+                                fx.jump.play()
+                            }
+                    }else if(game_state === 'ended'){
+                        // focus the camera onto the center of the map where the messege will be displayed
+                        game.camera.follow(start[4]);
+                        
+                        if(yes.isDown){
+                            start[4].kill();
+                            index = 0;
+                            score = 0;
+                            game.world.removeAll();
+                            game_state = 'start';
+                            restart = true;
+                            create();
+                        }else if(no.isDown){
+                            window.location.href = 'https://www.google.com';
+                        }
+                        
+                    }else if(game_state === 'menu'){
+                        
+                        update2();
+                        
+                        // foucus the camera on the menu text
+                        game.camera.follow(start[2]);
+                        
+                        if(space.isDown){
+                            // takes the start menu off the screen
+                            start[0].kill();
+                            start[1].kill();
+                            start[2].kill();
+                            
+                            // starts playing the background music
+                            music.play();
+                            
+                            // makes the camera look at the player
+                            game.camera.follow(player);
+                            
+                            // starts the game
+                            game_state = 'start';
+                        }
+                        
+                    }else{  
+                        
+                        player.body.velocity.x = 0;
+                        
+                        player.frame = 4;
+                        
+                        player.animations.stop();
+                        
+                        // keeps checking to see if anything is on the ground
+                        for(var i = 0; i < ground.length; i++){
+                            game.physics.arcade.collide(player, ground[i].g);
+                            game.physics.arcade.collide(coins, ground[i].g);
+                        }
+                        
+                         // checks to see if coins or the character are touching a landing
+                        for(var i = 0; i < landing.length; i++){
+                            game.physics.arcade.collide(coins, landing[i].s);
+                    
+                            // this will check that the player( and only the player ) has hit the 
+                            // unstable type of landing and let if fall away
+                            if(game.physics.arcade.collide(player, landing[i].s) && !landing[i].sol){
+                                landing[i].s.body.immovable = false;
+                            }
+                    
+                            // removes the pieces from the landing from the program so
+                            // it is not taking up memory
+                            if(landing[i].s.y > 600){
+                                landing[i].s.kill();
+                            }
+                        }
+                        if(yes.isDown){
+                            start[0].kill();
+                            start[1].kill();
+                            index = 0;
+                            score = 0;
+                            game.world.removeAll();
+                            game_state = 'start';
+                            restart = true;
+                            create();
+                        }else if(no.isDown){
+                            window.location.href = 'https://www.google.com';
+                        }
+                }
+                
+            }
+        </script>
+    </body>
+</html>
